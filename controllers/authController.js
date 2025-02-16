@@ -1,4 +1,9 @@
 const userModel = require("../models/userModel");
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+
+
 
 const registerUserController = async (req, res) => {
     try {
@@ -8,17 +13,27 @@ const registerUserController = async (req, res) => {
             return res.status(500).json({
                 success: false,
                 message: 'all fields are required',
-            })
+            });
         }
         // check if user already exists
         const existingUser = await userModel.findOne({ email });
         if(existingUser) {
             return res.status(500).json({
                 success: false,
-                message: 'user already exists',
-            })
+                message: 'email already exists please login',
+            });
         }
-        const user = await userModel.create(req.body);
+        // hash password
+        var salt =  bcrypt.genSaltSync(10);
+        const  hashedPassword = await bcrypt.hash(password, salt);
+        // create user                                      
+        const user = await userModel.create({
+            userName,
+            email,
+            password: hashedPassword,
+            phone,
+            address,
+        });
         res.status(201).json({
             success: true,
             message: 'user created successfully',
@@ -44,21 +59,36 @@ const loginUserController = async (req, res) => {
         if(!email || !password) {
             return res.status(500).json({
                 success: false,
-                message: 'please provide all fields',
+                message: 'please provide Email OR Password',
             });
         }
         // check if user exists
-        const user = await userModel.findOne({ email, password});
+        const user = await userModel.findOne({ email});
         if(!user) {
-            return res.status(500).json({
+            return res.status(404).json({
                 success: false,
-                message: 'invalid email or password',
+                message: 'User Not Found',
             });
         }
+        // check user password AND compare then 
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch) {
+            return res.status(500).json({
+                success: false,
+                message: 'Invalid cresentials',
+            });
+        }
+        // create token
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { 
+            expiresIn: '7d' });
+        // send token to client 
+        user.password = undefined
         res.status(200).json({
             success: true,
             message: 'login successful',
+            token,
             user,
+           
         });
     } catch (error) {
         res.status(500).json({
