@@ -36,6 +36,38 @@ const registerUserController = async (req, res) => {
 
 
 
+// login user controller
+const loginUserController = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        // check if all fields are provided
+        if(!email || !password) {
+            return res.status(500).json({
+                success: false,
+                message: 'please provide all fields',
+            });
+        }
+        // check if user exists
+        const user = await userModel.findOne({ email, password});
+        if(!user) {
+            return res.status(500).json({
+                success: false,
+                message: 'invalid email or password',
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'login successful',
+            user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'error in login controller',
+            error
+        });
+    }
+}   
 
 
 // const getUsersController = () => {};    
@@ -45,7 +77,8 @@ const registerUserController = async (req, res) => {
 
 
 module.exports = {
-    registerUserController
+    registerUserController,
+    loginUserController
     // getUsersController,
     // getUserByIdController,
     // updateUserController,
