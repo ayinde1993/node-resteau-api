@@ -1,9 +1,12 @@
 const express = require("express");
 require("dotenv").config();
 const app = express();
+const connectDB = require("./config/db");
+
 const testRoutes = require("./routes/testRoutes");
 const authRoutes = require("./routes/authRoute");
-const connectDB = require("./config/db");
+const userRoute = require("./routes/userRoutes");
+
 
 ////middleware pour parser les JSON
 app.use(express.json()); 
@@ -13,6 +16,7 @@ app.use(express.urlencoded({extended: false}));
 //routes
 app.use("/api/v1/test", testRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/user", userRoute);
 //connect to database
  connectDB();
 
