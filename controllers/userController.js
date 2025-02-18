@@ -147,10 +147,26 @@ const updatePasswordController = async (req, res) => {
     }
 }
 
-
+const deleProfileController = async (req, res) => {
+    try {
+        const {id} = req.params;
+        await userModel.findByIdAndDelete(id);
+        res.status(200).json({
+            success: true,
+            message: 'Profile deleted successfully',
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error
+        });
+    }
+}
 module.exports = { 
     getUserController,
     updateUserController,
     resetPasswordController,
-    updatePasswordController
+    updatePasswordController,
+    deleProfileController
 };     
