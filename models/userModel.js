@@ -32,7 +32,12 @@ const userSchema = new mongoose.Schema({
     profile: {
         type: String,
         default: 'https://cdn.pixabay.com/photo/2021/07/02/04/48/user-6380868_1280.png',
+    },
+    answer:{
+        type: String,
+        required: [true, 'Answer is require']
     }
+    
    
 }, {timestamps: true});                 
 

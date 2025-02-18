@@ -1,4 +1,5 @@
 const userModel = require("../models/userModel");
+const bcrypt = require("bcrypt");
 
 const getUserController =  async (req, res) => {
    try {
@@ -51,7 +52,54 @@ const updateUserController = async (req, res) => {
     }
 };
 
+const resetPasswordController = async (req, res) => {
+    try {
+        const {email, newPassword, answer, confirmPassword} = req.body   
+        if (!email || !answer ||!newPassword || !confirmPassword ) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required',
+            });
+        }
+        //check user
+        const user = await userModel.findOne({email, answer});
+        if(!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Invalid email or answer',
+            });
+        }
+        //compare password
+        if(newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password and confirmPassword do not match',
+            });
+        }
+        //hash password
+        var salt =  bcrypt.genSaltSync(10);
+        const  hashedPassword = await bcrypt.hash(newPassword, salt);
+        user.password = hashedPassword;
+        //save user
+        await user.save();
+        res.status(200).json({
+            success: true,
+            message: 'Password reset successfully',
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error
+        });
+    }
+}
+
+
+
 module.exports = { 
     getUserController,
-    updateUserController
+    updateUserController,
+    resetPasswordController
 };     

@@ -7,9 +7,9 @@ const jwt = require('jsonwebtoken')
 
 const registerUserController = async (req, res) => {
     try {
-        const { userName, email, password, phone, address } = req.body;
+        const { userName, email, password, phone, address,answer } = req.body;
         // check if all fields are provided
-        if(!userName || !email || !password  || !address || !phone) {    
+        if(!userName || !email || !password  || !address || !phone || !answer) {    
             return res.status(500).json({
                 success: false,
                 message: 'all fields are required',
@@ -33,6 +33,7 @@ const registerUserController = async (req, res) => {
             password: hashedPassword,
             phone,
             address,
+            answer,
         });
         res.status(201).json({
             success: true,
@@ -75,7 +76,7 @@ const loginUserController = async (req, res) => {
         if(!isMatch) {
             return res.status(500).json({
                 success: false,
-                message: 'Invalid cresentials',
+                message: 'Invalid email or password',
             });
         }
         // create token
