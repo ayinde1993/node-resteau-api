@@ -6,6 +6,7 @@ const connectDB = require("./config/db");
 const testRoutes = require("./routes/testRoutes");
 const authRoutes = require("./routes/authRoute");
 const userRoute = require("./routes/userRoutes");
+const restaurentRoute = require("./routes/restaurentRoute");
 
 
 ////middleware pour parser les JSON
@@ -17,6 +18,7 @@ app.use(express.urlencoded({extended: false}));
 app.use("/api/v1/test", testRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/restaurent", restaurentRoute);
 //connect to database
  connectDB();
 
