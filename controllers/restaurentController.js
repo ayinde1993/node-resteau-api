@@ -22,7 +22,7 @@ const createRestaurentController = async (req, res) => {
             address
         } = req.body;
 
-        if(!title ||  !coords){
+        if (!title || !coords) {
             return res.status(400).json({
                 success: false,
                 message: 'title and coords are required',
@@ -64,7 +64,7 @@ const createRestaurentController = async (req, res) => {
 const getAllRestaurentsController = async (req, res) => {
     try {
         const restaurents = await restaurentModel.find();
-        if(!restaurents){
+        if (!restaurents) {
             return res.status(404).json({
                 success: false,
                 message: 'no restaurents found',
@@ -89,9 +89,9 @@ const getAllRestaurentsController = async (req, res) => {
 //get single restaurent controller
 const getSingleRestaurentController = async (req, res) => {
     try {
-        const {restaurentId} = req.params;
+        const { restaurentId } = req.params;
         const restaurent = await restaurentModel.findById(restaurentId);
-        if(!restaurent){
+        if (!restaurent) {
             return res.status(404).json({
                 success: false,
                 message: 'restaurent not found',
@@ -109,11 +109,44 @@ const getSingleRestaurentController = async (req, res) => {
             error,
         });
     }
-}   
+}
+
+// delete restaurent controler
+
+const deleteRestaurentController = async (req, res) => {
+    try {
+        const { id: restaurentId } = req.params;
+
+
+        const restaurent = await restaurentModel.findByIdAndDelete(restaurentId);
+
+        if (!restaurent) {
+            return res.status(404).json({
+                success: false,
+                message: 'Restaurant not found',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Restaurant deleted successfully',
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error while deleting restaurant',
+            error: error.message, // Fournir un message d'erreur plus clair
+        });
+    }
+};
+
 
 
 module.exports = {
     createRestaurentController,
     getAllRestaurentsController,
     getSingleRestaurentController,
+    deleteRestaurentController,
+
 };

@@ -4,6 +4,7 @@ const {
     createRestaurentController,
     getAllRestaurentsController,
     getSingleRestaurentController,
+    deleteRestaurentController,
     } = require("../controllers/restaurentController"); 
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
@@ -15,6 +16,10 @@ router.get('/getall', authMiddleware, getAllRestaurentsController);
 
 //get single restaurent
 router.get('/get/:restaurentId', authMiddleware, getSingleRestaurentController);
+
+// delete restaurent 
+
+router.delete('/delete/:id', authMiddleware, deleteRestaurentController);
 
 
 
