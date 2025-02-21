@@ -60,7 +60,60 @@ const createRestaurentController = async (req, res) => {
 }
 
 
+//get all restaurents controller
+const getAllRestaurentsController = async (req, res) => {
+    try {
+        const restaurents = await restaurentModel.find();
+        if(!restaurents){
+            return res.status(404).json({
+                success: false,
+                message: 'no restaurents found',
+            });
+        }
+        res.status(200).json({
+            success: true,
+            totalCount: restaurents.length,
+            message: 'all restaurents fetched successfully',
+            restaurents,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'error while fetching all restaurents',
+            error,
+        });
+    }
+}
+
+
+//get single restaurent controller
+const getSingleRestaurentController = async (req, res) => {
+    try {
+        const {restaurentId} = req.params;
+        const restaurent = await restaurentModel.findById(restaurentId);
+        if(!restaurent){
+            return res.status(404).json({
+                success: false,
+                message: 'restaurent not found',
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'restaurent fetched successfully',
+            restaurent,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'error while fetching single restaurent',
+            error,
+        });
+    }
+}   
+
 
 module.exports = {
     createRestaurentController,
+    getAllRestaurentsController,
+    getSingleRestaurentController,
 };
