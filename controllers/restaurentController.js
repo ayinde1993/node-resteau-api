@@ -1,4 +1,4 @@
-const restaurentModel = require("../models/restaurentModels");
+const restaurentModel = require("../models/restaurentModel");
 // const bcrypt = require('bcrypt')
 // const jwt = require('jsonwebtoken')
 
