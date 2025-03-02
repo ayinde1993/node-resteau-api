@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoute");
 const userRoute = require("./routes/userRoutes");
 const restaurentRoute = require("./routes/restaurentRoute");
 const categoryRoute = require("./routes/categoryRoute");
+const foodRoute = require("./routes/foodRoute");
 
 ////middleware pour parser les JSON
 app.use(express.json()); 
@@ -20,6 +21,8 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/restaurent", restaurentRoute);
 app.use("/api/v1/category", categoryRoute);
+app.use("/api/v1/food", foodRoute);
+
 //connect to database
  connectDB();
 
