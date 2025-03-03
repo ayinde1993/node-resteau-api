@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { authMiddleware } = require("../middlewares/authMiddleware");
-const { createFoodController, getAllFoodsController, getSingleFoodController ,getFoodByRestaurantIdController,updateFoodController,deleteFoodController} = require("../controllers/foodController");
+const { createFoodController, getAllFoodsController, getSingleFoodController ,getFoodByRestaurantIdController,updateFoodController,deleteFoodController ,placeOrderController} = require("../controllers/foodController");
 
 
 
@@ -22,6 +22,9 @@ router.put('/updatefood/:id',authMiddleware, updateFoodController);
 
 //delete food item
 router.delete('/deletefood/:id',authMiddleware, deleteFoodController);
+
+//place order
+router.post('/placeorder',authMiddleware, placeOrderController);
 
 
 

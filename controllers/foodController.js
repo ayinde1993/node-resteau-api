@@ -1,5 +1,9 @@
 const Food = require("../models/foodModel");
 const Restaurent = require("../models/restaurentModel");
+const Order = require("../models/oderModel");
+const User = require("../models/userModel");
+
+
 
 const createFoodController = async (req, res) => {
     try {
@@ -217,11 +221,84 @@ const deleteFoodController = async (req, res) => {
         })
     }
 }
+
+//place order
+const placeOrderController = async (req, res) => {
+    try {
+        const { cartItems, paymentMethod } = req.body;
+        
+
+        // Vérification des champs
+        if (!Array.isArray(cartItems) || cartItems.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Cart cannot be empty"
+            });
+        }
+
+        if (!paymentMethod) {
+            return res.status(400).json({
+                success: false,
+                message: "Payment method is required"
+            });
+        }
+
+            // 🛒 **Group items by food ID and sum quantities**
+            const groupedCart = cartItems.reduce((acc, item) => {
+                const existingItem = acc.find(i => i._id === item._id);
+                if (existingItem) {
+                    existingItem.quantity += item.quantity;
+                } else {
+                    acc.push({ ...item }); // Add new food item
+                }
+                return acc;
+            }, []);
+    
+            // 📊 **Calculate total price**
+            const total = groupedCart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+        //check if the food id is valid 
+        for(let i=0;i<groupedCart.length;i++){
+            const food = await Food.findById(groupedCart[i]._id);
+            
+            if(!food){
+                return res.status(400).json({
+                    success: false,
+                    message: "Food not found please provide a valid food id"
+                });
+            }
+        }
+        // Création de la commande
+      
+        const newOrder = await Order.create({
+            buyer:req.user._id,
+            food: groupedCart,
+            totalPrice: total,
+            payment: paymentMethod,
+           
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Order placed successfully",
+            order: newOrder
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error while placing order",
+            error: error.message
+        });
+    }
+};
+
+
 module.exports = {
     createFoodController,
     getAllFoodsController,
     getSingleFoodController,
     getFoodByRestaurantIdController,
     updateFoodController,
-    deleteFoodController
+    deleteFoodController,
+    placeOrderController
 };
