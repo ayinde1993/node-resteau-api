@@ -176,7 +176,7 @@ const updateFoodController = async (req, res) => {
             })
         }
 
-    
+
         res.status(200).json({
             success: true,
             message: "Food updated successfully",
@@ -211,7 +211,7 @@ const deleteFoodController = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Food deleted successfully",
-            
+
         })
     } catch (error) {
         res.status(500).json({
@@ -226,7 +226,7 @@ const deleteFoodController = async (req, res) => {
 const placeOrderController = async (req, res) => {
     try {
         const { cartItems, paymentMethod } = req.body;
-        
+
 
         // Vérification des champs
         if (!Array.isArray(cartItems) || cartItems.length === 0) {
@@ -243,25 +243,25 @@ const placeOrderController = async (req, res) => {
             });
         }
 
-            // 🛒 **Group items by food ID and sum quantities**
-            const groupedCart = cartItems.reduce((acc, item) => {
-                const existingItem = acc.find(i => i._id === item._id);
-                if (existingItem) {
-                    existingItem.quantity += item.quantity;
-                } else {
-                    acc.push({ ...item }); // Add new food item
-                }
-                return acc;
-            }, []);
-    
-            // 📊 **Calculate total price**
-            const total = groupedCart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        // 🛒 **Group items by food ID and sum quantities**
+        const groupedCart = cartItems.reduce((acc, item) => {
+            const existingItem = acc.find(i => i._id === item._id);
+            if (existingItem) {
+                existingItem.quantity += item.quantity;
+            } else {
+                acc.push({ ...item }); // Add new food item
+            }
+            return acc;
+        }, []);
+
+        // 📊 **Calculate total price**
+        const total = groupedCart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
         //check if the food id is valid 
-        for(let i=0;i<groupedCart.length;i++){
+        for (let i = 0; i < groupedCart.length; i++) {
             const food = await Food.findById(groupedCart[i]._id);
-            
-            if(!food){
+
+            if (!food) {
                 return res.status(400).json({
                     success: false,
                     message: "Food not found please provide a valid food id"
@@ -269,13 +269,13 @@ const placeOrderController = async (req, res) => {
             }
         }
         // Création de la commande
-      
+
         const newOrder = await Order.create({
-            buyer:req.user._id,
+            buyer: req.user._id,
             food: groupedCart,
             totalPrice: total,
             payment: paymentMethod,
-           
+
         });
 
         res.status(201).json({
@@ -292,6 +292,48 @@ const placeOrderController = async (req, res) => {
     }
 };
 
+//change order status
+const orderStatusController = async (req, res) => {
+    try {
+        //get the order id from the params
+        const orderId = req.params.id
+        //check if the order id is valid
+        if (!orderId) {
+            return res.status(400).json({
+                success: false,
+                message: "Order id is required"
+            });
+        }
+        const orderStatus = req.body.status
+
+        const validStatuses = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
+        if (!validStatuses.includes(orderStatus)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid order status, please provide a valid order status"
+            });
+        }
+
+        const updatedOrder = await Order.findByIdAndUpdate(orderId, { status: orderStatus }, { new: true });
+        if (!updatedOrder) {
+            return res.status(400).json({
+                success: false,
+                message: "Order not found please provide a valid order id"
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: "Order status updated successfully",
+            updatedOrder
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error while changing order status",
+            error: error.message
+        });
+    }
+}
 
 module.exports = {
     createFoodController,
@@ -300,5 +342,6 @@ module.exports = {
     getFoodByRestaurantIdController,
     updateFoodController,
     deleteFoodController,
-    placeOrderController
+    placeOrderController,
+    orderStatusController
 };
